@@ -17,7 +17,7 @@ from torch.utils.tensorboard import SummaryWriter
 writer = SummaryWriter()
 
 
-def train(loader, model, optimizer, criterion, device):
+def train(loader, model, optimizer, criterion, device, epoch):
     batch_loss = 0
     for idx, (inputs, targets) in enumerate(tqdm(loader)):
         model.train()
@@ -28,6 +28,7 @@ def train(loader, model, optimizer, criterion, device):
         outputs = model(inputs)
         loss = criterion(outputs, targets)
         loss.backward()
+        # writer.add_scalar("Loss/train", loss, epoch)
         optimizer.step()
 
         batch_loss += loss.detach().cpu().item()
@@ -66,7 +67,7 @@ def main(args):
     torch.cuda.manual_seed(seed)
     random.seed(seed)
 
-    device = torch.device('cuda:'+str(args.num_gpu)) if torch.cuda.is_available() else torch.device('cpu')
+    device = torch.device('cuda:'+str(args.num_gpu)) if torch.cuda.is_available() else torch.device('mps')
 
     if args.log:
         logger.add('log_{time}.log')
@@ -98,11 +99,13 @@ def main(args):
     for epoch in range(1, args.epochs+1):
         print("=====Epoch {}=====".format(epoch))
         print('Training...')
-        loss = train(train_loader, net, optimizer, criterion, device)
-        writer.add_scalar('loss/train', loss, epoch)
+        loss = train(train_loader, net, optimizer, criterion, device, epoch)
         print('Evaluating...')
         train_rmse, train_mae, train_mape = eval(train_loader, net, std, mean, device)
         valid_rmse, valid_mae, valid_mape = eval(valid_loader, net, std, mean, device)
+
+        writer.add_scalar("Loss/valid", valid_rmse, epoch)
+        writer.add_scalar("Loss/train", train_rmse, epoch)
 
         if valid_rmse < best_valid_rmse:
             best_valid_rmse = valid_rmse

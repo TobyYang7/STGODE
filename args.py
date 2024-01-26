@@ -4,7 +4,7 @@ import argparse
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--remote', action='store_true', help='the code run on a server')
-parser.add_argument('--num-gpu', type=int, default=0, help='the number of the gpu to use')
+parser.add_argument('--num-gpu', type=int, default=3, help='the number of the gpu to use')
 parser.add_argument('--epochs', type=int, default=200, help='train epochs')
 parser.add_argument('--batch-size', type=int, default=16, help='batch size')
 
