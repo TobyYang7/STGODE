@@ -13,6 +13,9 @@ from model import ODEGCN
 from utils import generate_dataset, read_data, get_normalized_adj
 from eval import masked_mae_np, masked_mape_np, masked_rmse_np
 
+from torch.utils.tensorboard import SummaryWriter
+writer = SummaryWriter()
+
 
 def train(loader, model, optimizer, criterion, device):
     batch_loss = 0
@@ -96,6 +99,7 @@ def main(args):
         print("=====Epoch {}=====".format(epoch))
         print('Training...')
         loss = train(train_loader, net, optimizer, criterion, device)
+        writer.add_scalar('loss/train', loss, epoch)
         print('Evaluating...')
         train_rmse, train_mae, train_mape = eval(train_loader, net, std, mean, device)
         valid_rmse, valid_mae, valid_mape = eval(valid_loader, net, std, mean, device)
@@ -123,3 +127,5 @@ def main(args):
 
 if __name__ == '__main__':
     main(args)
+    writer.flush()
+    writer.close()
