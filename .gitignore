@@ -1,0 +1,8 @@
+*.mp4
+.vscode/
+.idea/
+.fleet/
+*.pkl
+*.npy
+*.npz
+__pycache__/
